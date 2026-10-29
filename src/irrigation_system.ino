@@ -1,3 +1,5 @@
+// C++ code
+
 // Total number of plants/channels
 const int NUM_CHANNELS = 4;
 

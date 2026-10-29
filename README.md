@@ -1,49 +1,56 @@
-# Automated 4-Channel Plant Irrigation System
+# Automated Multi-Channel Plant Irrigation System
 
-An automated, smart irrigation system built on the Arduino platform that independently monitors the soil moisture levels of up to four separate plants and triggers individual water pumps when the moisture drops below a customizable threshold.
+An automated irrigation system built around the Arduino platform that independently monitors soil moisture across multiple plants and activates dedicated water pumps whenever moisture falls below configurable thresholds.
 
-This project features a highly optimized, array-based codebase designed for easy scaling, clean logic execution, and power efficiency.
+The project uses an array-based architecture to manage sensor readings and pump control through a shared loop, making it easy to configure existing channels and extend the system. Sensor power can be switched independently to reduce electrochemical corrosion, while dedicated transistor switching stages isolate the pumps from the Arduino's digital outputs.
 
 ## 🛠️ System Specifications
 
-* **Microcontroller:** Arduino Uno R3
-* **System Voltage (V):** 5.0 V DC
-* **Peak System Current (I):** ~2.0 A (Allows overhead for 4 pumps running concurrently)
-* **Calibration Limits:** 
-  * `0` (Fully Dry baseline)
-  * `539` (Fully Wet baseline)
+- **Microcontroller:** Arduino Uno R3
+- **Logic and sensor supply:** 5 V DC
+- **Pump supply:** Regulated 5 V DC external supply, sized for the combined pump current
+- **Current implementation:** 4 independent irrigation channels
+- **Sensor outputs:** Analog inputs A0–A3
+- **Sensor power control:** Digital pins D4–D7
+- **Pump control:** Digital pins D13, D12, D11, and D10
+- **Calibration:** Configurable dry and wet reference values
+  - Dry baseline: `0` (provisional)
+  - Wet baseline: `539` (provisional)
 
----
+> **Scalability:** The software uses arrays and loops to simplify channel management. The number of channels supported by the hardware is limited by available GPIO and analog inputs, sensor power requirements, pump drivers, and the power supply. Expanding beyond the current configuration may require multiplexers, external I/O expanders, or additional controllers.
 
 ## 📊 Individual Plant Configurations
 
-Each channel is configured with custom moisture thresholds to match different plant species, you can modify this to your own configuration:
+Each irrigation channel has its own sensor, pump, and configurable moisture threshold. The current four-channel configuration is:
 
-| Channel | Physical Pins (Sensor / Motor) | Target Threshold | Ideal Plant Type Examples |
-| :--- | :--- | :--- | :--- |
-| **Plant 1** | Analog `A0` / Digital `13` | `< 30%` | Cacti, Succulents, Jade |
-| **Plant 2** | Analog `A1` / Digital `12` | `< 45%` | Monstera, Pothos, Philodendron |
-| **Plant 3** | Analog `A2` / Digital `11` | `< 45%` | Ficus, Schefflera, Peperomia |
-| **Plant 4** | Analog `A3` / Digital `10` | `< 60%` | Ferns, Calatheas, Peace Lilies |
+| Channel | Sensor Signal | Sensor Power | Pump Control | Threshold |
+|:--|:--|:--|:--|:--|
+| Plant 1 | A0 | D4 | D13 | `< 30%` |
+| Plant 2 | A1 | D5 | D12 | `< 45%` |
+| Plant 3 | A2 | D6 | D11 | `< 45%` |
+| Plant 4 | A3 | D7 | D10 | `< 60%` |
 
----
+Thresholds are examples, not universal plant requirements. Adjust the `turn_on_thresholds` array and calibrate each sensor in its intended growing medium.
 
 ## ⚡ Bill of Materials (BOM)
 
-To build this project physically on a workbench, the following components are required:
+Component quantities below correspond to the current four-channel build. Additional channels require additional sensors, pump drivers, protection components, and sufficient power capacity.
 
-| Qty | Component Description | Purpose |
-| :--- | :--- | :--- |
-| 1 | Arduino Uno R3 (or compatible) | Main controller / Brain |
-| 4 | Analog Soil Moisture Sensors | Measuring soil resistance / moisture |
-| 4 | 5V Mini Submersible Water Pumps | Pumping water to individual plants |
-| 4 | NPN Transistors (e.g., PN2222 or TIP120) | Acting as low-side ground switches for the motors |
-| 4 | 220Ω Resistors | Protecting the Arduino digital output pins |
-| 4 | 1N4007 Flyback Diodes | **Critical:** Absorbs inductive voltage spikes from pumps |
-| 1 | 5V 2A DC Mains Wall Adapter | The real-world "Super Potato" power source |
-
----
+| Qty | Component | Purpose |
+|:--|:--|:--|
+| 1 | Arduino Uno R3 or compatible board | Main controller |
+| 4 | Analog soil-moisture sensors | Measuring soil moisture |
+| 4 | 5 V mini submersible DC pumps | Independent watering |
+| 4 | Suitable NPN transistors or logic-level N-channel MOSFETs | Low-side pump switching |
+| 4 | 1 kΩ resistors for NPN transistor bases | Limiting base current |
+| 4 | 1N4007 flyback diodes, subject to current suitability | Suppressing inductive voltage spikes |
+| 4 | 100 nF ceramic capacitors | Reducing high-frequency motor noise |
+| 1 | 220 µF electrolytic capacitor or appropriately sized alternative | Stabilizing the pump supply rail |
+| 1 | Regulated 5 V DC power supply, initially targeting at least 2 A | Powering the pumps |
+| As needed | Breadboard or prototyping board, jumper wires, and tubing | Assembly and water delivery |
 
 ## 🔌 Circuit Blueprint & Schematics
 
-![Tinkercad Circuit Schematic](hardware/schematic_.png)
+![Tinkercad Circuit Schematic](hardware/tinkercad_screenshot.png)
+
+The current schematic illustrates the four-channel implementation. Each channel uses an independently powered moisture sensor and a dedicated low-side pump switching stage with flyback protection.
